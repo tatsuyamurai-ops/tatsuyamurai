@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>週報サマライザー | ENT FS 村井チーム</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{--bg:#0a0c10;--sf:#111318;--sf2:#181c24;--bd:#252a35;--ac:#3b82f6;--ac2:#6366f1;--tx:#e2e8f0;--tx2:#94a3b8;--tx3:#64748b;--gr:#10b981;--rd:#ef4444}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:'Noto Sans JP',sans-serif;font-size:14px;min-height:100vh}
+.hd{background:var(--sf);border-bottom:1px solid var(--bd);padding:14px 24px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.lg{width:28px;height:28px;background:linear-gradient(135deg,var(--ac),var(--ac2));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px}
+.ht{font-size:15px;font-weight:700}
+.badge{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:var(--ac);font-size:11px;padding:2px 8px;border-radius:20px;font-family:'JetBrains Mono',monospace}
+.ts{font-size:11px;color:var(--tx3);margin-left:auto;font-family:'JetBrains Mono',monospace}
+.mn{max-width:1100px;margin:0 auto;padding:24px}
+.ctrl{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;margin-bottom:20px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.cg{display:flex;flex-direction:column;gap:6px}
+.cg label{font-size:11px;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;font-weight:500}
+select{background:var(--sf2);border:1px solid var(--bd);color:var(--tx);padding:8px 12px;border-radius:8px;font-size:13px;font-family:'Noto Sans JP',sans-serif;outline:none;min-width:160px}
+.run{background:linear-gradient(135deg,var(--ac),var(--ac2));border:none;color:#fff;padding:9px 22px;border-radius:8px;font-size:13px;font-weight:700;font-family:'Noto Sans JP',sans-serif;cursor:pointer;white-space:nowrap;transition:opacity .2s}
+.run:hover{opacity:.9}.run:disabled{opacity:.5;cursor:not-allowed}
+.sbar{display:none;align-items:center;gap:8px;padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:16px}
+.sbar.ld{display:flex;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);color:var(--ac)}
+.sbar.er{display:flex;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:var(--rd)}
+.sp{width:14px;height:14px;border:2px solid rgba(59,130,246,.3);border-top-color:var(--ac);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.res{display:none}.res.on{display:block}
+.wknav{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.wktitle{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px}
+.wkdot{width:8px;height:8px;background:var(--ac);border-radius:50%}
+.cpall{background:var(--sf2);border:1px solid var(--bd);color:var(--tx2);padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:all .2s}
+.cpall:hover{border-color:var(--ac);color:var(--ac)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:768px){.grid{grid-template-columns:1fr}}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden}
+.card.full{grid-column:1/-1}
+.chd{padding:13px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;background:var(--sf2)}
+.ico{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px}
+.ico.b{background:rgba(59,130,246,.2)}.ico.p{background:rgba(99,102,241,.2)}.ico.g{background:rgba(16,185,129,.2)}
+.ctit{font-size:13px;font-weight:700}.ccnt{margin-left:auto;font-size:11px;color:var(--tx3);font-family:'JetBrains Mono',monospace}
+.cbdy{padding:16px 18px}
+.ci{padding:12px 0;border-bottom:1px solid var(--bd)}
+.ci:last-child{border-bottom:none;padding-bottom:0}
+.cihd{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.cnm{font-size:13px;font-weight:700}
+.rp{font-size:10px;padding:2px 7px;border-radius:20px;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.25);color:#a5b4fc;font-weight:500}
+.bul{list-style:none;display:flex;flex-direction:column;gap:4px}
+.bul li{font-size:12.5px;color:var(--tx2);line-height:1.65;padding-left:14px;position:relative}
+.bul li::before{content:'\25B8';position:absolute;left:0;color:var(--tx3);font-size:10px;top:2px}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;text-align:left;padding:0 12px 10px 0;font-weight:600;border-bottom:1px solid var(--bd)}
+td{padding:9px 12px 9px 0;font-size:13px;border-bottom:1px solid rgba(37,42,53,.5);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.nb{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;font-weight:700;font-size:14px;font-family:'JetBrains Mono',monospace;background:rgba(59,130,246,.15);color:var(--ac)}
+.nb.tot{background:rgba(16,185,129,.2);color:var(--gr)}
+.bkd{display:flex;gap:4px;align-items:center}
+.bki{display:flex;align-items:center;gap:3px;font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--tx2)}
+.dot{width:6px;height:6px;border-radius:50%}
+.dot.tq{background:var(--ac)}.dot.nq{background:var(--ac2)}.dot.ex{background:var(--tx3)}
+.dv{color:var(--tx3);margin:0 3px;font-size:11px}
+.tmr td{border-top:1px solid var(--bd)!important;font-weight:700;color:var(--tx)}
+.emp{text-align:center;padding:24px;color:var(--tx3);font-size:13px}
+</style>
+</head>
+<body>
+<div class="hd">
+  <div class="lg">&#128202;</div>
+  <div class="ht">&#36031;&#22577;&#12469;&#12510;&#12521;&#12452;&#12470;&#12540;</div>
+  <span class="badge">#ent_fs_murai</span>
+  <div class="ts" id="ts"></div>
+</div>
+<div class="mn">
+  <div class="ctrl">
+    <div class="cg">
+      <label>&#23550;&#35937;&#36208;</label>
+      <select id="wsel"><option value="0">3/16&#36208;&#65288;&#26368;&#26032;&#65289;</option></select>
+    </div>
+    <button class="run" id="runbtn" onclick="run()">&#9654; &#12469;&#12510;&#12522;&#12540;&#29983;&#25104;</button>
+  </div>
+  <div class="sbar" id="sbar"><div class="sp"></div><span id="smsg">&#35299;&#26512;&#20013;...</span></div>
+  <div class="res" id="res">
+    <div class="wknav">
+      <div class="wktitle"><div class="wkdot"></div><span id="wklbl"></span></div>
+      <button class="cpall" id="cpbtn" onclick="copyAll()">&#128203; &#20840;&#25991;&#12467;&#12500;&#12540;</button>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="chd"><div class="ico b">&#127919;</div><div class="ctit">&#20170;&#26399;&#12288;&#39640;&#23458;&#21029; Topics</div><div class="ccnt" id="tcnt">0&#31038;</div></div><div class="cbdy" id="tbody"></div></div>
+      <div class="card"><div class="chd"><div class="ico p">&#128640;</div><div class="ctit">&#26469;&#26399;&#12288;&#39640;&#23458;&#21029; Topics</div><div class="ccnt" id="ncnt">0&#31038;</div></div><div class="cbdy" id="nbody"></div></div>
+    </div>
+    <div class="card full"><div class="chd"><div class="ico g">&#128200;</div><div class="ctit">&#34892;&#21205;&#37327;&#65288;&#20170;&#26399; / &#26469;&#26399; / &#25162;&#32034;&#65289;</div><div class="ccnt" id="mcnt">0&#21517;</div></div><div class="cbdy" id="abody"></div></div>
+  </div>
+</div>
+<script>
+var CT="";
+var W=[{label:"3/16週",members:[
+{n:"内藤 皓文",t:["SCREEN SPE:決裁承認クリア、MRR118万継続妥結、月内申込向け稟議中","アドバンテスト:セキュリティ審査待ち、次週1Day張り付きでBuy-in獲得場設定"],x:["SCREENファインテック:新社長交代リスク、来期早急コンタクト予定","SCREENグラフィック:査定App1年無償で来期継続合意、法務調整中"],a:"7(5,1,1)"},
+{n:"西野 真梨",t:["LIXIL LHT:購買統括部長アポ、Drawer活用提案来週実施予定","LIXIL LWT:水栓・シャワートイレ各部ヒアリング実施、部長会食実施"],x:["LIXIL LWT:4月頭に松尾事業部長+清水部長アポ設定予定","TOTO:ウォシュレット生産本部 作本部長・藤村様アポ翌週設定"],a:"13(4,9,0)"},
+{n:"飯塚 大樹",t:["村田製作所:モノづくり技術統括部と2H議論、4/1PJ方向性判断予定"],x:["PCO回路形成プロセス事業部:萩森さん商談設定、24日商談予定","パナソニックG:LAS/PEW/PEACへ翌週複数アプローチ予定"],a:"3(0,3,0)"},
+{n:"香田 翔光",t:["THK山口工場:LMガイド8種の図面・購買データ紐づけ作業中、4/20正式稟議タイムライン"],x:["日軽金HD 日本フルハーフ:保全部部長面談実施、6月役員人事変更要警戒","AWPC:DX推進部検討テーマ議論面談を翌週設定"],a:"8(0,6,2)"},
+{n:"奥田 拓哉",t:["島津製作所:工場長GO取得も推進者の日程引き延ばし中、翌週再確認"],x:["太陽誘電:生技・品証・商品開発課長アポ実施、佐々木役員紹介に向け社内で動くと発言","TMEIC:4月からマニュファクチャリングイノベーション新部署立ち上げ、4月再訪問予定"],a:"8(1,4,3)"},
+{n:"位田 憲哉",t:["AWR:堀取締役と複数回折衝、ROI議論実施もデータ未着で進捗遅れ","AWM:久樂取締役との課題合意、次回現場ボトルネック確認","日立建機ティエラ:設計取り組み拡大ディスカッション実施","日立建機PIC常陸那珂工場:業務フローヒアリング実施、次回延長戦"],x:["AW西日本・防災:アプローチ開始、AIDX推進室と来Q（4月）から議論予定","日軽金G・クボタ・クボタケミックス:翌週探索アポ複数予定"],a:"10(3,4,3)"},
+{n:"大前 良介",t:["カネカ高砂事業所:SolとDRW契約内容の擦り合わせ完了、来週火曜捺印完了目指す"],x:["カネカpharma技術チーム:価値検証内容再擦り合わせ・提案予定","コマツ各工場:小山・大阪・粟津・滋賀工場の個別アポ実施"],a:"6(3,0,3)"},
+{n:"切替 タケル",t:["三菱電機長崎工場:湯浅工場長と車両空調テーマ確認、調達原価低減に絞り工藤部長とすり合わせ必要","リコーインダストリー:菅野取締役UNLEASH参加決定、三菱電機G11名参加表明"],x:[],a:"5(3,2,0)"},
+{n:"藤谷 雄貴",t:["NOK熊本:業務フローヒアリング実施、課題は開発工数確保（不具合削減）、4/6部長報告準備中"],x:["NOK・シマノ・村田機械CFA:翌週アポ設定予定"],a:"3(0,3,0)"},
+{n:"髙城 英昭",t:["DOWAメタルテック:荒木センター長・佐藤マネージャーと商談、実験ノート埋没・見積業務負担の課題ヒアリング成功","ギガフォトン:翌週仏師田・高久さんアポ（村井さんから）設定予定"],x:["TDK:次世代装置開発部 柴崎様リスケ回収（翌週）","DOWAサーモテック:浜松北工場 西岡課長・武本取締役アポ翌週設定"],a:"6(0,0,4)"},
+{n:"神田 凌誠",t:["NDTC:NCJ稟議突破","NCCC:承認獲得・NCJ稟議開始、トークン追加アップセルは4月中実現目指す","NCJ/DX:週次定例・各社稟議フォロー実施"],x:["NPSC:安田CTO・鈴木部長商談設定（来Qフォーカスへ）翌週予定","イタリア/ブラジル:初回商談翌週予定、来Qヨミへ","NTMC・NPRC:Sol/NTMZ導入に向けて動き始める予定"],a:"8(7,0,1)"},
+{n:"藤澤 朗",t:["THK山口工場:図番と品目コードの紐づけを部品表・オーダー票を軸に探索中、THK現場との共通認識が深まっている"],x:["日軽金フルハーフ厚木・日軽金アクトDX推進室・日軽情報システム社長面談:翌週実施予定"],a:"8(0,6,2)"},
+{n:"相澤 拓也",t:["アドバンテスト:価値検証前の勉強会が来週24-25日に変更、内藤・三輪さんと資料すり合わせ済、11名参加予定","沖電気:2回目打合せ実施、DRWで対応可能な課題多数確認、顧問+トップアプローチを同時並行"],x:["ニコン:23日に内田執行役員へ具体的事例説明予定、進める領域を確定させたい"],a:"6(3,2,1)"},
+{n:"中村 魁",t:["京セラ精機事業部岡谷工場:7アポ実施、資材部に大きなペインを確認、推進者候補の松本さんとの議論を進める"],x:["京セラ半導体部品有機材料事業本部:特需での引き合い増加、位田さんと共に入り込む予定","京セラスマートファクトリー:データ内製・オンプレ志向強い、個に向かうアプローチへ","AW・メディカル:2回目アポ確定、オポ化へ推進","AWPC:業務改革topとの面談前に壁打ち実施"],a:"12(0,0,12)"},
+{n:"吉田 陽一",t:[],x:[],a:"0(0,0,0)"},
+{n:"岩本 啄也",t:["SCREEN PE社:毎日TEL・メールでクラウド利用申請を推進、3/24クラウドサイン締結予定（予定より2日前倒し）","SCREEN GA社:品証部・機械開発部訪問（CS同行）、来週ユーザー説明会準備・定期打合せ合意"],x:["イビデン:稲川さんと仕様書自動生成の議論、SoAとできること/できないことを整理予定"],a:"7(3,4,0)"},
+{n:"佐々木 昂太",t:["三菱電機:商談実施"],x:["TMEIC 府中事業所長:商談実施"],a:"7(2,3,2)"},
+{n:"坂倉 翔",t:["日立GEベルノバ:部分的な採用議論中、来週検討結果確認後に最速での契約を目指す","日立プラント:既存契約の認識確認完了、3/23より追加ライセンス/ソリューション契約の議論へ、3/31発注承認目標","日立産機勝田:稲垣取締役との検討合意・GWS合意完了、SoA松村さんと価値検証会へ"],x:[],a:"7(5,2,0)"},
+{n:"本川 祐太",t:["富士電機千葉工場:PLM一体申請不可、通常申請へ変更、4月以降作戦会議予定、千葉工場での検討推進を合意","NOK阿蘇工場:検図前提課題ヒアリング実施、会田課長（若手エース）が推進者候補、4/6リアル打合せ調整中","シャープ:按分案を揚塩様・重田様に提示・共有完了"],x:[],a:"10(0,10,1)"},
+{n:"德田 拓哉",t:["日立産機勝田・中条:稲垣常務・三上CTO・太田CPO面談、GWS実施合意・UNLEASH参加表明取得","日立ニコトランスミッション:3月業務ヒアリング開始、4/27社長提案会から6月申込書発行タイムラインで進行中"],x:[],a:"6(0,6,0)"},
+{n:"梅村 亘",t:["NAMS（中国子会社）:価値検証会・総経理商談実施、口頭合意獲得","NTMZ（テクノモータ中国子会社）:価値検証会・生産統括責任者面談実施、共同利用で進める方向"],x:["NCSR（AMEC中国子会社）:7月NAMS報告会同席から8月未来会議で推進を握る作戦"],a:"11(7,4,0)"},
+{n:"橘木 駿昌",t:["富士電機千葉工場:余剰ライセンス解消に向けセンター長・工場長面談決定、4月中旬に村井さん同席で全体テーマ合意を目指す","ブラザー工業:寺倉様が常務執行役員に就任、設計部門を紹介いただきニーズ掘り起こし後に提案予定"],x:["ソニー:調達部門DX担当者面談、現場Buy-in優先後に部長接続予定","ニデック:ソニー元調達部長が転職中、調達システム刷新検討中、来週訪問予定"],a:"8(0,5,3)"},
+{n:"浦田 衛",t:["富士電機千葉工場:余剰ライセンス解消に向けセンター長・工場長面談決定、4月中旬に村井さん同席で全体テーマ合意を目指す","ブラザー工業:寺倉様が常務執行役員に就任、設計部門を紹介いただきニーズ掘り起こし後に提案予定"],x:["ソニー:調達部門DX担当者面談、現場Buy-in優先後に部長接続予定","ニデック:ソニー元調達部長が転職中、調達システム刷新検討中、来週訪問予定"],a:"8(0,5,3)"}
+]}];
+function run(){
+  var idx=parseInt(document.getElementById("wsel").value),wk=W[idx],btn=document.getElementById("runbtn");
+  btn.disabled=true;btn.textContent="⏳ 生成中...";
+  setSt("ld","Claude AIが全"+wk.members.length+"名の週報を解析中...");
+  document.getElementById("res").className="res";
+  var lines=wk.members.map(function(m){return m.n+"|今期:"+(m.t.length?m.t.join(" / "):"なし")+"|来期:"+(m.x.length?m.x.join(" / "):"なし")+"|行動量:"+m.a;}).join("\n");
+  var prompt=wk.label+"週報データ("+wk.members.length+"名)\n形式:担当者名|今期|来期|行動量(合計(今期,来期,探索))\n\n"+lines+"\n\nJSONのみ返してください(コードブロック不要):\n{\"today_topics\":[{\"customer\":\"顧客名\",\"rep\":\"担当者名\",\"bullets\":[\"箇条書き\"]}],\"next_topics\":[{\"customer\":\"顧客名\",\"rep\":\"担当者名\",\"bullets\":[\"箇条書き\"]}],\"activity\":[{\"rep\":\"担当者名\",\"total\":数字,\"today_q\":数字,\"next_q\":数字,\"explore\":数字}]}\nルール:today_topics=今期Topicsを顧客単位で整理(担当者名必須),next_topics=来期Topicsを顧客単位で整理(担当者名必須),activity=行動量の括弧内数値を抽出し全"+wk.members.length+"名分含める。担当者:"+wk.members.map(function(m){return m.n;}).join("・");
+  fetch("/api/weekly-summarize",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:prompt})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    var raw="";
+    if(d.content){for(var i=0;i<d.content.length;i++){if(d.content[i].type==="text"){raw=d.content[i].text;break;}}}
+    if(!raw)throw new Error("空のレスポンス:"+JSON.stringify(d).substring(0,200));
+    raw=raw.replace(/```json\s*/g,"").replace(/```\s*/g,"").trim();
+    var s=JSON.parse(raw.substring(raw.indexOf("{"),raw.lastIndexOf("}")+1));
+    render(s,wk.label);
+    document.getElementById("sbar").className="sbar";
+    document.getElementById("res").className="res on";
+    document.getElementById("ts").textContent="更新: "+new Date().toLocaleTimeString("ja-JP");
+  })
+  .catch(function(e){setSt("er","エラー: "+e.message);console.error(e);})
+  .finally(function(){btn.disabled=false;btn.textContent="▶ サマリー生成";});
+}
+function render(s,lbl){
+  document.getElementById("wklbl").textContent=lbl+" Weekly Report サマリー";
+  rT("tbody","tcnt",s.today_topics||[]);rT("nbody","ncnt",s.next_topics||[]);rA(s.activity||[]);bC(s,lbl);
+}
+function rT(bid,cid,items){
+  document.getElementById(cid).textContent=items.length+"社";
+  if(!items.length){document.getElementById(bid).innerHTML='<div class="emp">該当なし</div>';return;}
+  var h="";
+  for(var i=0;i<items.length;i++){var t=items[i],bl="";for(var j=0;j<(t.bullets||[]).length;j++){bl+="<li>"+e(t.bullets[j])+"</li>";}h+='<div class="ci"><div class="cihd"><span class="cnm">'+e(t.customer)+'</span><span class="rp">'+e(t.rep)+'</span></div><ul class="bul">'+bl+"</ul></div>";}
+  document.getElementById(bid).innerHTML=h;
+}
+function rA(act){
+  document.getElementById("mcnt").textContent=act.length+"名";
+  if(!act.length){document.getElementById("abody").innerHTML='<div class="emp">データなし</div>';return;}
+  var tT=0,tq=0,nq=0,ex=0;for(var i=0;i<act.length;i++){tT+=act[i].total||0;tq+=act[i].today_q||0;nq+=act[i].next_q||0;ex+=act[i].explore||0;}
+  var rows="";for(var i=0;i<act.length;i++){var a=act[i];rows+='<tr><td>'+e(a.rep)+'</td><td><div class="bkd"><span class="bki"><span class="dot tq"></span>'+(a.today_q||0)+'</span><span class="dv">/</span><span class="bki"><span class="dot nq"></span>'+(a.next_q||0)+'</span><span class="dv">/</span><span class="bki"><span class="dot ex"></span>'+(a.explore||0)+'</span></div></td><td style="text-align:center"><div class="nb">'+(a.total||0)+"</div></td></tr>";}
+  rows+='<tr class="tmr"><td>チーム合計</td><td><div class="bkd"><span class="bki"><span class="dot tq"></span>'+tq+'</span><span class="dv">/</span><span class="bki"><span class="dot nq"></span>'+nq+'</span><span class="dv">/</span><span class="bki"><span class="dot ex"></span>'+ex+'</span></div></td><td style="text-align:center"><div class="nb tot">'+tT+"</div></td></tr>";
+  document.getElementById("abody").innerHTML='<table><thead><tr><th>担当者</th><th>内訳（<span style="color:var(--ac)">今期</span> / <span style="color:var(--ac2)">来期</span> / <span style="color:var(--tx3)">探索</span>）</th><th style="text-align:center">合計</th></tr></thead><tbody>'+rows+"</tbody></table>";
+}
+function bC(s,lbl){
+  var t="【"+lbl+" 週報サマリー｜ENT FS 村井チーム】\n生成: "+new Date().toLocaleString("ja-JP")+"\n\n";
+  t+="━━━ 今期 顧客別Topics ━━━\n";(s.today_topics||[]).forEach(function(x){t+="\n■ "+x.customer+"（"+x.rep+"）\n";(x.bullets||[]).forEach(function(b){t+="  • "+b+"\n";});});
+  t+="\n━━━ 来期 顧客別Topics ━━━\n";(s.next_topics||[]).forEach(function(x){t+="\n■ "+x.customer+"（"+x.rep+"）\n";(x.bullets||[]).forEach(function(b){t+="  • "+b+"\n";});});
+  t+="\n━━━ 行動量（今期/来期/探索） ━━━\n";(s.activity||[]).forEach(function(a){t+=a.rep+": "+a.total+"件（今期"+a.today_q+", 来期"+a.next_q+", 探索"+a.explore+"）\n";});
+  CT=t;
+}
+function copyAll(){
+  if(!CT)return;var btn=document.getElementById("cpbtn");
+  navigator.clipboard&&navigator.clipboard.writeText(CT).then(function(){btn.textContent="✅ コピーしました";setTimeout(function(){btn.textContent="📋 全文コピー";},2000);});
+}
+function setSt(t,m){document.getElementById("sbar").className="sbar "+t;document.getElementById("smsg").textContent=m;}
+function e(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+</script>
+</body>
+</html>

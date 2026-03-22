@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && cp public/weekly.html dist/weekly.html && cp api/weekly-summarize.js dist/api/weekly-summarize.js || true",
     "preview": "vite preview"
   },
   "dependencies": {
